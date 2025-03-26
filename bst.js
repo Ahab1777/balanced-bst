@@ -69,67 +69,69 @@ class Node{
         }
     }
 
-    deleteItem(value, referenceNode = this._root){
-        //Create reference to the previous node and the direction it came
-        let previousNode = null;
-        let wayHome = null
-        //Find the node
-        // While current node is different from target or null, search
-        while (referenceNode !== null && value !== referenceNode.data) {
-            if (value === referenceNode.data) {
-                break;
-            } else 
-            if (value < referenceNode.data) {
-                //go left
-                previousNode = referenceNode
-                referenceNode = referenceNode.left
-                wayHome = 'left'
-            } else
-            if (value > referenceNode.data) {
-                //go right
-                previousNode = referenceNode
-                referenceNode = referenceNode.right
-                wayHome = 'right'
-            }
-        }
-        //------------------------
-        //Check how many children it has
-        //No children
-        if(referenceNode.left === null && referenceNode.right === null){
-            //set the wayHome on referenceNode to null
-            if (wayHome === 'right') {
-                previousNode.right = null
-            } else
-            if (wayHome === 'left') {
-                previousNode.left = null
-            }
-        }
-        //One children
-        //Check if node has exactly only one branch null
-        if ((referenceNode.left === null) !== (referenceNode.right === null)) {
-            previousNode.data = referenceNode.data
-        }
-        //Two children
+    // deleteItem(value, referenceNode = this._root){
+    //     //Create reference to the previous node and the direction it came
+    //     let previousNode = null;
+    //     let wayHome = null
+    //     //Find the node
+    //     // While current node is different from target or null, search
+    //     while (referenceNode !== null && value !== referenceNode.data) {
+    //         if (value === referenceNode.data) {
+    //             break;
+    //         } else 
+    //         if (value < referenceNode.data) {
+    //             //go left
+    //             previousNode = referenceNode
+    //             referenceNode = referenceNode.left
+    //             wayHome = 'left'
+    //         } else
+    //         if (value > referenceNode.data) {
+    //             //go right
+    //             previousNode = referenceNode
+    //             referenceNode = referenceNode.right
+    //             wayHome = 'right'
+    //         }
+    //     }
+    //     //------------------------
+    //     //Check how many children it has
+    //     //No children
+    //     if(referenceNode.left === null && referenceNode.right === null){
+    //         //set the wayHome on referenceNode to null
+    //         if (wayHome === 'right') {
+    //             previousNode.right = null
+    //         } else
+    //         if (wayHome === 'left') {
+    //             previousNode.left = null
+    //         }
+    //     }
+    //     //One children
+    //     //Check if node has exactly only one branch null
+    //     if ((referenceNode.left === null) !== (referenceNode.right === null)) {
+    //         previousNode.data = referenceNode.data
+    //     }
+    //     //Two children
         
-        //-------------------------           
+    //     //-------------------------           
         
         
-        //Recursive deletion
-        //if target is to be deleted, continue recursion bypassing it
+    //     //Recursive deletion
+    //     //if target is to be deleted, continue recursion bypassing it
 
         
-    }
+    // }
 
 
-    //-
-    delete(value, currentNode = this._root){
+    //recursion attempt #2
+    deleteItem(value, currentNode = this._root){
         if(currentNode === null) return null
 
         if(value < currentNode.data){
-            currentNode.left = this.recursiveDeletion(value, currentNode.left)
+            currentNode.left = this.deleteItem(value, currentNode.left)
+            return currentNode
         } else
         if (value > currentNode.data) {
-            currentNode.right = this.recursiveDeletion(value, currentNode.right)
+            currentNode.right = this.deleteItem(value, currentNode.right)
+            return currentNode
         }
 
         //If value matches
@@ -139,8 +141,44 @@ class Node{
                 return null
             }
             //One child case
-            
-            
+            if ((currentNode.left !== null) !== (currentNode.right !== null)) {
+                //bypass target node
+                if (currentNode.right !== null) {
+                    return currentNode.right
+                } else if (currentNode.left !== null) {
+                    return currentNode.left;
+                }
+            }
+            //Two children case
+            if (currentNode.left !== null && currentNode.right !== null) {
+                //change value of node to be deleted for the next biggest one down the tree
+                //if the next biggest one has any child, make its parent link directly to its child
+
+                let nextNode = currentNode.right;
+                let parentNode;
+                //loop until next node do the right has no left, it will be the smallest one on right tree
+                if (nextNode.left !== null) {
+                    while(nextNode.left !== null){
+                        parentNode = nextNode;
+                        nextNode = nextNode.left;
+                    }
+                } 
+                else {
+                    parentNode = currentNode;
+                    nextNode = nextNode.left
+                }
+               
+                
+                
+                //set value to be changed from target
+                currentNode.data = nextNode.data
+                //bypass reference node's parent into its remaining child (if they exist)
+                if (nextNode !== null) {
+                    parentNode.left = nextNode.right
+                }
+                return currentNode
+            }
+         
         }
 
 
@@ -151,58 +189,58 @@ class Node{
     //steps fot BST deletion - two children case
     //https://www.youtube.com/watch?v=wcIRPqTR3Kc
     //find de node
-    recursiveDeletion (value, currentNode = this._root){
-        if(currentNode === null) return null
-        //delete value if it matches
-        if (value === currentNode.data) {
-            //two children case
-            if (currentNode.left !== null && currentNode.right !== null) {
-                //if next node has no left, it is the smallest one on right tree
-                let nextNode = currentNode.right;
-                let parentNode;
-                while(nextNode.left !== null){
-                    parentNode = nextNode;
-                    nextNode = nextNode.left;
-                }
-                //set value to be changed from target
-                currentNode.data = nextNode.data
-                //bypass reference node's parent into its remaining child (if they exist)
-                parentNode.left = nextNode.right
-                return
-            }
-            //one child case
-            if ((currentNode.left !== null) !== (currentNode.right !== null)) {
-                //change path 
-                if (currentNode.right === null) {
-                    nextNode = currentNode.left;
-                    currentNode.data = nextNode.data
-                } else if (currentNode.left === null) {
-                    nextNode = currentNode.right;
-                }
+    // recursiveDeletion (value, currentNode = this._root){
+    //     if(currentNode === null) return null
+    //     //delete value if it matches
+    //     if (value === currentNode.data) {
+    //         //two children case
+    //         if (currentNode.left !== null && currentNode.right !== null) {
+    //             //if next node has no left, it is the smallest one on right tree
+    //             let nextNode = currentNode.right;
+    //             let parentNode;
+    //             while(nextNode.left !== null){
+    //                 parentNode = nextNode;
+    //                 nextNode = nextNode.left;
+    //             }
+    //             //set value to be changed from target
+    //             currentNode.data = nextNode.data
+    //             //bypass reference node's parent into its remaining child (if they exist)
+    //             parentNode.left = nextNode.right
+    //             return
+    //         }
+    //         //one child case
+    //         if ((currentNode.left !== null) !== (currentNode.right !== null)) {
+    //             //change path 
+    //             if (currentNode.right === null) {
+    //                 nextNode = currentNode.left;
+    //                 currentNode.data = nextNode.data
+    //             } else if (currentNode.left === null) {
+    //                 nextNode = currentNode.right;
+    //             }
 
-                let parentNode;
-                while(nextNode.left !== null){
-                    parentNode = nextNode;
-                    nextNode = nextNode.left;
-                }
-                //set value to be changed from target
-                currentNode.data = nextNode.data
-                //bypass reference node's parent into its remaining child (if they exist)
-                parentNode.left = nextNode.right
-                return 
-            }
+    //             let parentNode;
+    //             while(nextNode.left !== null){
+    //                 parentNode = nextNode;
+    //                 nextNode = nextNode.left;
+    //             }
+    //             //set value to be changed from target
+    //             currentNode.data = nextNode.data
+    //             //bypass reference node's parent into its remaining child (if they exist)
+    //             parentNode.left = nextNode.right
+    //             return 
+    //         }
             
-        }
-        //find node to be deleted
-        if(value < currentNode.data){
-            return this.recursiveDeletion(value, currentNode.left)
-        } else
-        if (value > currentNode.data) {
-            return this.recursiveDeletion(value, currentNode.right)
-        }
+    //     }
+    //     //find node to be deleted
+    //     if(value < currentNode.data){
+    //         return this.recursiveDeletion(value, currentNode.left)
+    //     } else
+    //     if (value > currentNode.data) {
+    //         return this.recursiveDeletion(value, currentNode.right)
+    //     }
 
         
-    }
+    // }
     //find the next biggest node on its right side(the smallest one on targets right subtree)
         //it will be the first with left === null on its right subtree
     //if next biggest one has right child, link its parent to its child to erase it
@@ -253,7 +291,7 @@ const newTree = new Tree(Array.from({ length: 50 }, (_, index) => index + 1))
 console.log(newTree)
 prettyPrint(newTree.root)
 
-newTree.recursiveDeletion(50)
+newTree.deleteItem(49)
 //newTree.deleteItem(3)
 console.log('after')
 prettyPrint(newTree.root)
