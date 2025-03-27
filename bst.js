@@ -1,8 +1,3 @@
-//TODO
-//remove duplicates from OR check for an existing value before inserting
-
-
-
 class Node{
     constructor(data, leftChild = null, rightChild = null){
         this.data = data;
@@ -49,7 +44,8 @@ class Node{
         return returnValue
     }
 
-    insert(newNode, referenceNode = this._root) {
+    insert(value, referenceNode = this._root) {
+        const newNode = new Node(value)
         if (newNode.data < referenceNode.data) {
             // Check if it's a leaf
             if (referenceNode.left === null) {
@@ -57,7 +53,7 @@ class Node{
                 return;
             }
             // Recurse into the left subtree
-            this.insert(newNode, referenceNode.left);
+            this.insert(value, referenceNode.left);
         } else if (newNode.data > referenceNode.data) {
             // Check if it's a leaf
             if (referenceNode.right === null) {
@@ -65,63 +61,10 @@ class Node{
                 return;
             }
             // Recurse into the right subtree
-            this.insert(newNode, referenceNode.right);
+            this.insert(value, referenceNode.right);
         }
     }
 
-    // deleteItem(value, referenceNode = this._root){
-    //     //Create reference to the previous node and the direction it came
-    //     let previousNode = null;
-    //     let wayHome = null
-    //     //Find the node
-    //     // While current node is different from target or null, search
-    //     while (referenceNode !== null && value !== referenceNode.data) {
-    //         if (value === referenceNode.data) {
-    //             break;
-    //         } else 
-    //         if (value < referenceNode.data) {
-    //             //go left
-    //             previousNode = referenceNode
-    //             referenceNode = referenceNode.left
-    //             wayHome = 'left'
-    //         } else
-    //         if (value > referenceNode.data) {
-    //             //go right
-    //             previousNode = referenceNode
-    //             referenceNode = referenceNode.right
-    //             wayHome = 'right'
-    //         }
-    //     }
-    //     //------------------------
-    //     //Check how many children it has
-    //     //No children
-    //     if(referenceNode.left === null && referenceNode.right === null){
-    //         //set the wayHome on referenceNode to null
-    //         if (wayHome === 'right') {
-    //             previousNode.right = null
-    //         } else
-    //         if (wayHome === 'left') {
-    //             previousNode.left = null
-    //         }
-    //     }
-    //     //One children
-    //     //Check if node has exactly only one branch null
-    //     if ((referenceNode.left === null) !== (referenceNode.right === null)) {
-    //         previousNode.data = referenceNode.data
-    //     }
-    //     //Two children
-        
-    //     //-------------------------           
-        
-        
-    //     //Recursive deletion
-    //     //if target is to be deleted, continue recursion bypassing it
-
-        
-    // }
-
-
-    //recursion attempt #2
     deleteItem(value, currentNode = this._root){
         if(currentNode === null) return null
 
@@ -172,94 +115,152 @@ class Node{
               
                 return currentNode
             }
-         
         }
+    }
+
+    find(value, currentNode = this._root){
+        if(value === currentNode.data){
+            return currentNode
+        }
+        if(value < currentNode.data){
+            currentNode = this.find(value, currentNode.left)
+            return currentNode
+        }
+        if (value > currentNode.data) {
+            currentNode = this.find(value, currentNode.right)
+            return currentNode
+        }
+        if (currentNode === null) {
+            console.log('No such value in this tree')
+            return null
+        }
+    }
+
+    //Implement iteration and recursion
+    levelOrder(callback){
+        if(!callback){
+            throw new Error('Callback is needed')
+        }
+        const queue = [];
+        let currentNode = this._root;
+        //push adds to the end
+        //shift removes from the start
 
 
+        //add currentNode to queue
+        queue.push(currentNode)
+        //while queue length is not zero, keep applying call back
+        while (queue.length !== 0) {
+            //use currentNode as variable for callback
+            callback(currentNode.data)
+            //add currentNode's left child to queue
+            if (currentNode.left !== null) {
+                queue.push(currentNode.left)
+            }
+            //add currentNode's right child to queue
+            if (currentNode.right !== null) {
+                queue.push(currentNode.right)
+            }
+            queue.shift()
+            currentNode = queue[0]
+        }
+        return
+    }
+
+    preOrder(callback, currentNode = this._root){
+        if(!callback) {
+            throw new Error('Callback is needed')
+        }
+        if (currentNode === null) return
+        //Provide currentNode data to callback
+        callback(currentNode.data)
+        //Call recursion on currentNode.left
+        this.preOrder(callback, currentNode.left)
+        //Call recursion on currentNode.right
+        this.preOrder(callback, currentNode.right)
 
     }
 
+    inOrder(callback, currentNode = this._root){
+        if(!callback) {
+            throw new Error('Callback is needed')
+        }
+        if (currentNode === null) return
+        //Call recursion on currentNode.left
+        this.inOrder(callback, currentNode.left)
+        //Provide currentNode data to callback
+        callback(currentNode.data)
+        //Call recursion on currentNode.right
+        this.inOrder(callback, currentNode.right)
 
-    //steps fot BST deletion - two children case
-    //https://www.youtube.com/watch?v=wcIRPqTR3Kc
-    //find de node
-    // recursiveDeletion (value, currentNode = this._root){
-    //     if(currentNode === null) return null
-    //     //delete value if it matches
-    //     if (value === currentNode.data) {
-    //         //two children case
-    //         if (currentNode.left !== null && currentNode.right !== null) {
-    //             //if next node has no left, it is the smallest one on right tree
-    //             let nextNode = currentNode.right;
-    //             let parentNode;
-    //             while(nextNode.left !== null){
-    //                 parentNode = nextNode;
-    //                 nextNode = nextNode.left;
-    //             }
-    //             //set value to be changed from target
-    //             currentNode.data = nextNode.data
-    //             //bypass reference node's parent into its remaining child (if they exist)
-    //             parentNode.left = nextNode.right
-    //             return
-    //         }
-    //         //one child case
-    //         if ((currentNode.left !== null) !== (currentNode.right !== null)) {
-    //             //change path 
-    //             if (currentNode.right === null) {
-    //                 nextNode = currentNode.left;
-    //                 currentNode.data = nextNode.data
-    //             } else if (currentNode.left === null) {
-    //                 nextNode = currentNode.right;
-    //             }
+    }
 
-    //             let parentNode;
-    //             while(nextNode.left !== null){
-    //                 parentNode = nextNode;
-    //                 nextNode = nextNode.left;
-    //             }
-    //             //set value to be changed from target
-    //             currentNode.data = nextNode.data
-    //             //bypass reference node's parent into its remaining child (if they exist)
-    //             parentNode.left = nextNode.right
-    //             return 
-    //         }
+    postOrder(callback, currentNode = this._root){
+        if(!callback) {
+            throw new Error('Callback is needed')
+        }
+        if (currentNode === null) return
+        //Call recursion on currentNode.left
+        this.postOrder(callback, currentNode.left)
+        //Call recursion on currentNode.right
+        this.postOrder(callback, currentNode.right)
+        //Provide currentNode data to callback
+        callback(currentNode.data)
+
+    }
+
+    height(currentNode = this._root){
+        
+        if(currentNode === null) return 0
+        //traverse the tree until reaching a null and save the number of steps on a variable
+        const leftHeight = this.height(currentNode.left);
+        const rightHeight = this.height(currentNode.right);
+        //return biggest number
+        return Math.max(leftHeight, rightHeight) + 1;
+    }
+
+    depth(targetNode, currentNode = this._root){
+        if (targetNode === currentNode || targetNode === null) return 0;
+        let currentDepth = 0;
+        if(targetNode.data < currentNode.data){
+            currentDepth ++
+            currentDepth += this.depth(targetNode, currentNode.left)
             
-    //     }
-    //     //find node to be deleted
-    //     if(value < currentNode.data){
-    //         return this.recursiveDeletion(value, currentNode.left)
-    //     } else
-    //     if (value > currentNode.data) {
-    //         return this.recursiveDeletion(value, currentNode.right)
-    //     }
+        }
+        if (targetNode.data > currentNode.data) {
+            currentDepth ++
+            currentDepth += this.depth(targetNode, currentNode.right)
+        }
+        return currentDepth
+    }
 
-        
-    // }
-    //find the next biggest node on its right side(the smallest one on targets right subtree)
-        //it will be the first with left === null on its right subtree
-    //if next biggest one has right child, link its parent to its child to erase it
-    //replace target node value for the next biggest one's
+    isBalanced(currentNode = this._root){
+        if(currentNode === null) return true
+        //Recursively check the rest of the tree;
+        const leftTreeBalance = this.isBalanced(currentNode.left)
+        const rightTreeBalance = this.isBalanced(currentNode.right)
+        if (leftTreeBalance === false || rightTreeBalance === false){
+            return false
+        }
+        // If the difference between the heights of the left and right subtrees of all nodes is no more than one, return true
+        const leftTreeHeight = this.height(currentNode.left)
+        const rightTreeHeight = this.height(currentNode.right)
+        if (Math.abs(leftTreeHeight - rightTreeHeight) > 1) {
+            return false
+        }
+        return true;
+    }
 
-
-    //attempt at deletion function for two children
-
-    // recursiveDeletion (value, currentNode = this._root, direction){
-    //     if (currentNode === null) return null
-
-    //     if (value < currentNode.data) {
-    //         //Continue down the tree
-    //         currentNode.left = this.recursiveDeletion(currentNode.left)
-    //     }
-        
-    //     if (value > currentNode.data) {
-    //         currentNode.right = this.recursiveDeletion(currentNode.right)
-    //     }
-
-    //     if (value === currentNode.data) {
-    //         return this.recursiveDeletion(value, currentNode)
-
-    //     }
-    // }
+    rebalance(){
+        const treeArray = []
+        const arrayPusher = (value) => {
+            treeArray.unshift(value)
+        }
+        //generate ordered array;
+        this.inOrder(arrayPusher)
+        //pass array into buildTree
+        this._root = this.buildTree(treeArray)
+    }
 }
 
 //Function to visualize the tree
@@ -276,16 +277,34 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
     }
   };
 
-const newTree = new Tree(Array.from({ length: 50 }, (_, index) => index + 1))
+const newTree = new Tree(Array.from({ length: 99 }, (_, index) => index + 1))
 //const newTree = new Tree([11, 22, 33])
 
 //const newNode = new Node(5.2)
-//newTree.insert(newNode)
-
-console.log(newTree)
 prettyPrint(newTree.root)
 
-newTree.deleteItem(2)
+console.log('Is balanced?', newTree.isBalanced())
+
+newTree.insert(111)
+newTree.insert(222)
+newTree.insert(444)
+newTree.insert(777)
+newTree.insert(999)
+
+//console.log(newTree)
+//prettyPrint(newTree.root)
+//newTree.deleteItem(2)
 //newTree.deleteItem(3)
-console.log('after')
+//console.log('after')
 prettyPrint(newTree.root)
+console.log('Is balanced?', newTree.isBalanced())
+newTree.rebalance()
+prettyPrint(newTree.root)
+console.log('Is balanced?', newTree.isBalanced())
+//console.log(newTree.find(1))
+// newTree.inOrder((value) => {
+//     console.log(value)
+// })
+//console.log(newTree.height())
+//console.log(newTree.depth(newTree.find(6)))
+// console.log(newTree.isBalanced())
