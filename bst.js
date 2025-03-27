@@ -151,31 +151,25 @@ class Node{
             }
             //Two children case
             if (currentNode.left !== null && currentNode.right !== null) {
-                //change value of node to be deleted for the next biggest one down the tree
-                //if the next biggest one has any child, make its parent link directly to its child
-
+                //1. Find next biggest
+                //1.1 If next node has no child, it is the next biggest
                 let nextNode = currentNode.right;
-                let parentNode;
-                //loop until next node do the right has no left, it will be the smallest one on right tree
-                if (nextNode.left !== null) {
-                    while(nextNode.left !== null){
-                        parentNode = nextNode;
-                        nextNode = nextNode.left;
-                    }
-                } 
-                else {
-                    parentNode = currentNode;
+                if(nextNode.right === null && nextNode.left === null){
+                    currentNode.data = nextNode.data;
+                    currentNode.right = null;
+                    return currentNode
+                }
+                //1.2 Else, look for the next biggest one down the tree
+                //loop to the left until a node has no left, it will be the smallest one on right tree
+                let parentNode = null;
+                while(nextNode.left !== null){
+                    parentNode = nextNode;
                     nextNode = nextNode.left
                 }
-               
-                
-                
                 //set value to be changed from target
                 currentNode.data = nextNode.data
-                //bypass reference node's parent into its remaining child (if they exist)
-                if (nextNode !== null) {
-                    parentNode.left = nextNode.right
-                }
+                parentNode.left = nextNode.right
+              
                 return currentNode
             }
          
@@ -291,7 +285,7 @@ const newTree = new Tree(Array.from({ length: 50 }, (_, index) => index + 1))
 console.log(newTree)
 prettyPrint(newTree.root)
 
-newTree.deleteItem(49)
+newTree.deleteItem(2)
 //newTree.deleteItem(3)
 console.log('after')
 prettyPrint(newTree.root)
